@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero';
+
+const lang = 'zh';
+---
+
+{/* 传入 isHome={true} 开启全屏锁定模式 */}
+<Layout title="Novatra AI - 构建未来" lang={lang} isHome={true}>
+  <Hero client:load lang={lang} />
+</Layout>

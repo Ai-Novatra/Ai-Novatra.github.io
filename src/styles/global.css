@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 250 250 249; 
+    --surface: 255 255 255;
+  }
+
+  .dark {
+    --background: 12 10 9;
+    --surface: 28 25 23;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  body {
+    background-color: rgb(var(--background)); 
+    color: theme('colors.stone.900');
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .dark body {
+    color: theme('colors.stone.100');
+  }
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { bg: transparent; }
+::-webkit-scrollbar-thumb { 
+  @apply bg-stone-300 dark:bg-stone-700 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover { 
+  @apply bg-teal-600; 
+}
+
+/* 全局选中态 */
+::selection {
+  @apply bg-teal-500/30 text-teal-900 dark:text-teal-100;
+}
+
+/* =========================================================
+   Gemini/GPT 风格代码块核心样式
+   ========================================================= */
+
+/* 1. 外层容器：深色圆角窗口 */
+.code-container {
+  @apply my-6 rounded-xl border border-stone-200 dark:border-stone-800 bg-[#1e1e1e] overflow-hidden shadow-sm;
+}
+
+/* 2. 顶部状态栏 (Header) */
+.code-header {
+  @apply flex items-center justify-between px-4 py-2 bg-[#2d2d2d] border-b border-[#404040] text-xs font-mono select-none text-stone-400;
+}
+
+/* 3. 语言标识 */
+.code-lang {
+  @apply font-bold uppercase tracking-wider text-stone-300;
+}
+
+/* 4. 复制按钮 */
+.copy-btn {
+  @apply flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/10 hover:text-white transition-colors cursor-pointer;
+}
+
+/* 5. 修复 Markdown 默认 pre 样式，移除自带背景，防止双重背景 */
+.prose pre {
+  @apply m-0 rounded-none border-0 shadow-none bg-transparent !important;
+  padding: 1rem 1.25rem !important;
+}
+
+/* 6. 代码字体优化 (更像 IDE) */
+.prose pre code,
+.prose pre code span {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  font-weight: 400 !important;
+}
+
+/* --- 核心修复：代码块内的选中态 (High Contrast) --- */
+/* 强制背景为亮青色，文字为纯白，解决看不清的问题 */
+.prose pre code::selection,
+.prose pre code *::selection {
+  background-color: #14b8a6 !important; /* Teal-500 */
+  color: #ffffff !important;
+}
+
+/* 背景网格 */
+.bg-grid-slate-200 {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='%23e7e5e4'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+}
+.dark .bg-grid-slate-800 {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='%23292524'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+}

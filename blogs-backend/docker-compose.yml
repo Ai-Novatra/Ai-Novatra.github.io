@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # === 1. 全能监控中心 (Uptime Kuma) ===
+  # 监控：网站状态、SSL证书、域名、Ping值
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ./data/uptime-kuma:/app/data
+    ports:
+      - "3001:3001"
+    environment:
+      HTTP_PROXY: http://10.211.55.2:7897
+      HTTPS_PROXY: http://10.211.55.2:7897
+      NO_PROXY: localhost,127.0.0.1,umami-db,umami
+    restart: always
+
+  # === 2. 流量统计数据库 (Postgres) ===
+  umami-db:
+    image: postgres:15-alpine
+    container_name: umami-db
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami_password_secure
+      # 数据库通常不需要外网访问，但为保持一致性加上代理配置
+      HTTP_PROXY: http://10.211.55.2:7897
+      HTTPS_PROXY: http://10.211.55.2:7897
+      NO_PROXY: localhost,127.0.0.1,umami,uptime-kuma
+    volumes:
+      - ./data/umami-db:/var/lib/postgresql/data
+    restart: always
+
+  # === 3. 流量统计面板 (Umami) ===
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: umami
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://umami:umami_password_secure@umami-db:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: "$$(openssl rand -hex 32)"
+      HTTP_PROXY: http://10.211.55.2:7897
+      HTTPS_PROXY: http://10.211.55.2:7897
+      NO_PROXY: localhost,127.0.0.1,umami-db,uptime-kuma
+    depends_on:
+      - umami-db
+    restart: always
+
+networks:
+  default:
+    name: blog-monitor-net

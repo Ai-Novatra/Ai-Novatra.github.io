@@ -1,0 +1,474 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { ArrowLeft } from 'lucide-react';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => data.lang === 'zh');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+
+// 过滤出h2-h6级别的标题用于目录
+const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 6);
+
+// 获取文档名称
+const docName = post.data.title || '文档';
+---
+
+<Layout title={post.data.title} lang="zh">
+  <div class="min-h-screen bg-stone-50 dark:bg-neutral-900"> {/* 统一暗黑背景色 */}
+    {/* 关键：固定容器，高度 = 视口 - 顶部导航高度（假设导航高16 = 4rem） */}
+    <div class="fixed inset-x-0 top-16 bottom-0 flex">
+      {/* 左侧目录栏 - 统一背景色，消除分层 */}
+      <aside class="w-72 h-full bg-white dark:bg-neutral-900 border-r border-neutral-700 flex flex-col"> {/* 统一背景 */}
+        {/* 添加顶部外边距，让按钮下移 */}
+        <div class="mt-3"></div>
+        
+        {/* 返回知识库 */}
+        <div class="px-4 py-4 flex-shrink-0">
+          <a href="/archives" class="flex items-center text-sm text-stone-600 dark:text-stone-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+            <ArrowLeft class="w-4 h-4 mr-2" />
+            返回知识库
+          </a>
+        </div>
+        
+        {/* 分割线 - 暗黑模式下调暗 */}
+        <div class="border-t border-stone-200 dark:border-neutral-700 flex-shrink-0"></div>
+        
+        {/* 文章目录标题 */}
+        <div class="px-4 py-3 flex-shrink-0">
+          <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100">
+            📖 文章目录
+          </h3>
+        </div>
+        
+        {/* 文档名称 - 暗黑模式下调暗文字 */}
+        <div class="px-4 pb-2 flex-shrink-0">
+          <div class="text-sm font-semibold text-stone-800 dark:text-stone-200 mb-2">
+            {docName}
+          </div>
+        </div>
+        
+        {/* 目录树 */}
+        <nav class="flex-1 overflow-y-auto px-2 pb-4 space-y-1">
+          {tocHeadings.map((heading) => (
+            <a
+              href={`#${heading.slug}`}
+              class={`toc-link toc-item block text-sm leading-relaxed transition-all duration-200 hover:text-teal-600 dark:hover:text-teal-400
+                ${heading.depth === 2 ? 'font-semibold text-stone-900 dark:text-stone-100 pl-3' : ''}
+                ${heading.depth === 3 ? 'text-stone-700 dark:text-stone-300 pl-6' : ''}
+                ${heading.depth === 4 ? 'text-stone-600 dark:text-stone-400 pl-9 text-xs' : ''}
+                ${heading.depth === 5 ? 'text-stone-500 dark:text-stone-500 pl-12 text-xs' : ''}
+                ${heading.depth === 6 ? 'text-stone-400 dark:text-stone-600 pl-14 text-xs' : ''}
+              `}
+              data-target-id={heading.slug}
+            >
+              <span class="block truncate">
+                {heading.text}
+              </span>
+            </a>
+          ))}
+        </nav>
+      </aside>
+
+      {/* 右侧正文区域 - 统一背景色 */}
+      <main class="flex-1 h-full overflow-y-auto bg-white dark:bg-neutral-900"> {/* 统一背景 */}
+        <article class="max-w-4xl mx-auto px-8 py-12">
+          {/* 文章头部 */}
+          <header class="mb-8">
+            {/* 顶部日期 */}
+            <div class="flex items-center text-sm text-stone-600 dark:text-stone-400 mb-4">
+              <span class="flex items-center">
+                📅 2025-12-03
+              </span>
+            </div>
+            
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-4">
+                {post.data.tags.map((tag: string) => (
+                  <span class="inline-block px-3 py-1 text-xs font-medium text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/20 rounded-full">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            <h1 class="text-3xl font-bold text-stone-900 dark:text-stone-100 mb-4">
+              {post.data.title}
+            </h1>
+            
+            {post.data.readingTime && (
+              <div class="flex items-center text-sm text-stone-600 dark:text-stone-400">
+                <span>{post.data.readingTime} 分钟阅读</span>
+              </div>
+            )}
+          </header>
+
+          {/* 正文内容 */}
+          <div class="prose prose-stone dark:prose-invert max-w-none">
+            <Content />
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+
+  <style is:global>
+    /* === 禁止整个页面滚动 === */
+    html, body {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    /* 自定义滚动条样式 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #d6d3d1;
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8a29e;
+    }
+    
+    .dark ::-webkit-scrollbar-thumb {
+      background: #57534e;
+    }
+    
+    .dark ::-webkit-scrollbar-thumb:hover {
+      background: #78716c;
+    }
+    
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 标题锚点偏移 */
+    :target {
+      scroll-margin-top: 2rem;
+    }
+    
+    /* 活动标题高亮 */
+    .toc-item.active {
+      background-color: rgba(13, 148, 136, 0.1);
+      color: #0d9488;
+      font-weight: 600;
+    }
+    
+    .dark .toc-item.active {
+      background-color: rgba(94, 234, 212, 0.1);
+      color: #5eead4;
+    }
+    
+    /* 闪烁效果 */
+    @keyframes highlight-flash {
+      0%, 100% {
+        background: transparent;
+      }
+      50% {
+        background: linear-gradient(to right, rgba(13, 148, 136, 0.2), transparent);
+      }
+    }
+    
+    .flash-target {
+      animation: highlight-flash 1.5s ease-in-out;
+      border-radius: 4px;
+      padding: 2px 0;
+    }
+    
+    /* 防止点击时的默认高亮 */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* === 代码块样式 - 黑色主题 === */
+    .prose pre {
+      background: #1e1e1e !important;
+      border: 1px solid #333 !important;
+      border-radius: 8px !important;
+      padding: 1.5rem !important;
+      position: relative !important;
+      margin: 1.5rem 0 !important;
+      overflow-x: auto !important;
+    }
+    
+    .prose pre code {
+      background: transparent !important;
+      color: #d4d4d4 !important;
+      font-size: 0.9rem !important;
+      line-height: 1.5 !important;
+    }
+    
+    /* === 代码块复制按钮 === */
+    .code-block-wrapper {
+      position: relative;
+      margin: 1.5rem 0;
+    }
+    
+    .code-copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ccc;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    
+    .code-block-wrapper:hover .code-copy-btn {
+      opacity: 1;
+    }
+    
+    .code-copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+    
+    .code-copy-btn.copied {
+      background: rgba(46, 204, 113, 0.3);
+      color: #2ecc71;
+      border-color: rgba(46, 204, 113, 0.5);
+    }
+  </style>
+  
+  <script>
+    // 防抖函数
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+    // 精确滚动到目标元素
+    function scrollToTarget(targetId) {
+      const targetElement = document.getElementById(targetId);
+      if (!targetElement) return;
+      
+      // 移除所有闪烁效果
+      document.querySelectorAll('.flash-target').forEach(el => {
+        el.classList.remove('flash-target');
+      });
+      
+      // 计算精确的滚动位置
+      const elementRect = targetElement.getBoundingClientRect();
+      const headerOffset = 80;
+      const targetPosition = window.pageYOffset + elementRect.top - headerOffset;
+      
+      // 执行平滑滚动
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
+      
+      // 添加闪烁效果
+      setTimeout(() => {
+        targetElement.classList.add('flash-target');
+        
+        // 1.5秒后移除闪烁效果
+        setTimeout(() => {
+          targetElement.classList.remove('flash-target');
+        }, 1500);
+      }, 300);
+      
+      // 更新目录活动状态
+      updateActiveTocItem(targetId);
+    }
+    
+    // 更新目录的活动状态
+    function updateActiveTocItem(targetId) {
+      const tocLinks = document.querySelectorAll('.toc-link');
+      tocLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${targetId}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+    
+    // 查找当前滚动位置对应的标题
+    function findCurrentHeading() {
+      const headings = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+      const scrollTop = window.pageYOffset;
+      const offset = 120;
+      
+      // 从底部向上查找
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const heading = headings[i];
+        const headingTop = heading.offsetTop;
+        
+        if (scrollTop >= headingTop - offset) {
+          return heading.getAttribute('id') || '';
+        }
+      }
+      
+      return headings[0]?.getAttribute('id') || '';
+    }
+    
+    // === 增强的代码块复制功能 ===
+    function enhanceCodeBlocks() {
+      // 查找所有代码块
+      const codeBlocks = document.querySelectorAll('.prose pre');
+      
+      if (codeBlocks.length === 0) return;
+      
+      codeBlocks.forEach((block, index) => {
+        // 创建包装容器
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+        
+        // 创建复制按钮
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'code-copy-btn';
+        copyBtn.textContent = '复制';
+        copyBtn.setAttribute('data-code-id', `code-${index}`);
+        
+        // 将代码块包装起来
+        block.parentNode.insertBefore(wrapper, block);
+        wrapper.appendChild(block);
+        wrapper.appendChild(copyBtn);
+        
+        // 添加点击事件
+        copyBtn.addEventListener('click', async () => {
+          const codeText = block.querySelector('code')?.textContent || '';
+          
+          // 空内容检查
+          if (!codeText.trim()) {
+            copyBtn.textContent = '空内容';
+            setTimeout(() => {
+              copyBtn.textContent = '复制';
+            }, 2000);
+            return;
+          }
+          
+          try {
+            // 尝试使用 Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(codeText);
+              showSuccess(copyBtn);
+            } else {
+              // 降级方案：使用 execCommand
+              const textArea = document.createElement('textarea');
+              textArea.value = codeText;
+              textArea.style.position = 'fixed';
+              textArea.style.left = '-999999px';
+              document.body.appendChild(textArea);
+              textArea.focus();
+              textArea.select();
+              
+              const successful = document.execCommand('copy');
+              document.body.removeChild(textArea);
+              
+              if (successful) {
+                showSuccess(copyBtn);
+              } else {
+                throw new Error('execCommand failed');
+              }
+            }
+          } catch (err) {
+            console.error('复制失败:', err);
+            showError(copyBtn);
+          }
+        });
+      });
+    }
+    
+    // 显示复制成功
+    function showSuccess(btn) {
+      btn.textContent = '已复制!';
+      btn.classList.add('copied');
+      
+      setTimeout(() => {
+        btn.textContent = '复制';
+        btn.classList.remove('copied');
+      }, 2000);
+    }
+    
+    // 显示复制失败
+    function showError(btn) {
+      btn.textContent = '复制失败';
+      btn.style.background = 'rgba(231, 76, 60, 0.3)';
+      btn.style.color = '#e74c3c';
+      btn.style.borderColor = 'rgba(231, 76, 60, 0.5)';
+      
+      setTimeout(() => {
+        btn.textContent = '复制';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 2000);
+    }
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 增强代码块
+      enhanceCodeBlocks();
+      
+      const tocLinks = document.querySelectorAll('.toc-link');
+      
+      // 为目录链接添加点击事件
+      tocLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const targetId = link.getAttribute('href')?.substring(1);
+          if (!targetId) return;
+          
+          scrollToTarget(targetId);
+        });
+      });
+      
+      // 使用防抖优化滚动事件监听
+      const handleScroll = debounce(() => {
+        const currentId = findCurrentHeading();
+        if (currentId) {
+          updateActiveTocItem(currentId);
+        }
+      }, 100);
+      
+      window.addEventListener('scroll', handleScroll);
+      
+      // 初始化活动状态
+      setTimeout(() => {
+        const currentId = findCurrentHeading();
+        if (currentId) {
+          updateActiveTocItem(currentId);
+        }
+      }, 300);
+      
+      // 处理URL哈希值
+      if (window.location.hash) {
+        const targetId = window.location.hash.substring(1);
+        setTimeout(() => {
+          scrollToTarget(targetId);
+        }, 500);
+      }
+    });
+  </script>
+</Layout>

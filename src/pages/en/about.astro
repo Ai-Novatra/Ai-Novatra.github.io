@@ -1,0 +1,82 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Github, Mail } from 'lucide-react';
+
+const lang = 'en';
+---
+
+<Layout title="About - Novatra AI" lang={lang}>
+  <div class="max-w-4xl mx-auto py-10 md:py-20">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+      <div class="space-y-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-stone-900 dark:text-white leading-tight">
+          Hello, I am <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Passion</span>
+        </h1>
+        
+        <p class="text-lg text-stone-600 dark:text-stone-400 leading-relaxed">
+          A Full Stack Engineer focused on Cloud Native Architecture, AI, and Web Development. I am passionate about building high-performance digital products with ultimate user experiences.
+        </p>
+        
+        <div class="flex flex-col gap-4 text-stone-600 dark:text-stone-400">
+          <div class="flex items-center gap-3 group transition-colors">
+            <div class="p-2 rounded-lg bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:bg-teal-100 dark:group-hover:bg-teal-500/20">
+              <Mail className="w-5 h-5" />
+            </div>
+            <a href="mailto:novatra.ai@novatra.cn" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+              novatra.ai@novatra.cn
+            </a>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          {/* 修复：GitHub 链接 */}
+          <a href="https://github.com/Ai-Novatra" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-full font-bold hover:scale-105 transition-transform shadow-lg shadow-teal-500/10">
+            <Github className="w-5 h-5" />
+            Follow on GitHub
+          </a>
+        </div>
+      </div>
+
+      <div class="relative hidden md:block">
+         <div class="absolute inset-0 bg-teal-500/20 blur-[80px] rounded-full animate-pulse"></div>
+         <div class="relative bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <pre class="font-mono text-sm text-stone-800 dark:text-stone-200 overflow-x-auto">
+<code><span class="text-teal-600 dark:text-teal-400">const</span> <span class="text-amber-600 dark:text-amber-400">developer</span> = &#123;
+  name: <span class="text-emerald-600 dark:text-emerald-400">'Passion'</span>,
+  role: <span class="text-emerald-600 dark:text-emerald-400">'Full Stack Engineer'</span>,
+  skills: [
+    <span class="text-emerald-600 dark:text-emerald-400">'Cloud Native'</span>,
+    <span class="text-emerald-600 dark:text-emerald-400">'AI/LLM'</span>,
+    <span class="text-emerald-600 dark:text-emerald-400">'DevOps'</span>
+  ],
+  mission: <span class="text-emerald-600 dark:text-emerald-400">'Build for Experience'</span>
+&#125;;</code>
+            </pre>
+         </div>
+      </div>
+    </div>
+    
+    <div class="prose prose-stone dark:prose-invert max-w-none border-t border-stone-200 dark:border-stone-800 pt-12">
+      <h2 class="text-2xl font-bold text-stone-900 dark:text-white mb-6 flex items-center gap-3">
+        <span class="w-1.5 h-8 bg-teal-500 rounded-full"></span>
+        My Philosophy
+      </h2>
+      <div class="bg-stone-50 dark:bg-stone-900/50 p-8 rounded-2xl border border-stone-100 dark:border-stone-800/50 space-y-4">
+        <p class="text-lg font-medium text-stone-700 dark:text-stone-300">
+          I believe technology should serve people.
+        </p>
+        <p class="text-stone-600 dark:text-stone-400">
+          This blog is a sanctuary for my thoughts and a window to connect with the world.
+        </p>
+        <p class="text-stone-600 dark:text-stone-400">
+          I hope you can learn what you want through my blog. Let's grow together!
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>

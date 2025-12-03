@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero';
+
+const lang = 'en';
+---
+
+<Layout title="Novatra AI - Building Future" lang={lang} isHome={true}>
+  <Hero client:load lang={lang} />
+</Layout>

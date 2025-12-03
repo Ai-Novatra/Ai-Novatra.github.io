@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SearchableArchive from '../../components/SearchableArchive';
+import { getCollection } from 'astro:content';
+import { ui } from '../../i18n/ui';
+
+const lang = 'en';
+const t = (key) => ui[lang][key];
+
+// 获取所有英文文章并按日期排序
+const posts = (await getCollection('posts', ({ data }) => data.lang === 'en'))
+  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+  .map(post => ({
+    title: post.data.title,
+    description: post.data.description,
+    date: post.data.date,
+    tags: post.data.tags,
+    slug: post.slug
+  }));
+---
+
+{/* isHome={true} 用于激活 Layout 的 overflow-hidden 属性，防止双重滚动条 */}
+<Layout title={`${t('archives.title')} - Novatra AI`} lang={lang} isHome={true}>
+  {/* 直接渲染组件，无需额外的 padding 容器，SearchableArchive 内部已处理布局 */}
+  <SearchableArchive client:load posts={posts} lang={lang} />
+</Layout>

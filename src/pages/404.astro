@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ArrowLeft, Home } from 'lucide-react';
+import { ui } from '../i18n/ui';
+
+const lang = 'zh';
+const t = (key) => ui[lang][key];
+---
+
+<Layout title="404 - 页面未找到" lang={lang}>
+  <div class="flex flex-col items-center justify-center min-h-[80vh] text-center relative px-4">
+    
+    {/* 背景光晕 */}
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-500/10 blur-[100px] rounded-full -z-10 animate-pulse"></div>
+    
+    <h1 className="text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500 mb-6">
+      404
+    </h1>
+    
+    <h2 className="text-3xl md:text-4xl font-bold text-stone-900 dark:text-white mb-6 tracking-tight">
+      页面好像迷路了
+    </h2>
+    
+    <p className="text-stone-500 dark:text-stone-400 max-w-md mx-auto mb-10 text-lg leading-relaxed">
+      您访问的页面可能已被移动、删除，或者从未存在过。别担心，技术的探索总是伴随着未知。
+    </p>
+    
+    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+      <a href="/" className="px-8 py-3.5 rounded-full bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-xl shadow-teal-500/20">
+        <Home className="w-5 h-5" />
+        返回首页
+      </a>
+      <a href="javascript:history.back()" className="px-8 py-3.5 rounded-full bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 border border-stone-200 dark:border-stone-800 font-bold hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors flex items-center justify-center gap-2">
+        <ArrowLeft className="w-5 h-5" />
+        后退一步
+      </a>
+    </div>
+  </div>
+</Layout>

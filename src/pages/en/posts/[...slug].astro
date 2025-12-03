@@ -1,0 +1,142 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import TableOfContents from '../../../components/TableOfContents';
+import { ArrowLeft, Calendar, Clock, ChevronRight } from 'lucide-react';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => data.lang === 'en');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+---
+
+<Layout title={post.data.title} lang="en">
+  <div id="progress-container" className="fixed top-0 left-0 w-full h-0.5 z-50 bg-transparent pointer-events-none">
+    <div id="progress-bar" className="h-full bg-teal-500 w-0 transition-all duration-100 ease-out"></div>
+  </div>
+
+  <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-12 relative px-4 sm:px-6">
+    
+    <aside className="hidden xl:block w-48 flex-shrink-0 order-1">
+      <div className="sticky top-32">
+        <a href="/en/archives" className="group flex items-center gap-2 text-sm font-bold text-stone-500 hover:text-teal-600 transition-colors">
+          <div className="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          </div>
+          Back to KB
+        </a>
+      </div>
+    </aside>
+
+    <article className="flex-1 min-w-0 order-3 xl:order-2 max-w-3xl mx-auto xl:mx-0 w-full pb-20">
+      
+      <header className="mb-10 pt-10">
+        <div className="flex items-center gap-2 text-xs font-bold text-teal-600 dark:text-teal-400 mb-4 uppercase tracking-wider">
+          <span className="bg-teal-50 dark:bg-teal-500/10 px-2 py-0.5 rounded border border-teal-100 dark:border-teal-500/20">
+            {post.data.tags[0]}
+          </span>
+          <ChevronRight className="w-3 h-3 text-stone-400" />
+          <span>Docs</span>
+        </div>
+
+        <h1 className="text-3xl md:text-4xl font-extrabold text-stone-900 dark:text-white mb-6 leading-tight">
+          {post.data.title}
+        </h1>
+
+        <div className="flex items-center gap-6 text-sm text-stone-500 dark:text-stone-400">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <time>{post.data.date}</time>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span>5 min read</span>
+          </div>
+        </div>
+      </header>
+
+      <hr class="border-stone-200 dark:border-stone-800 mb-10 opacity-60" />
+
+      <div className="prose prose-stone dark:prose-invert max-w-none 
+        prose-lg 
+        prose-headings:font-bold prose-headings:tracking-tight prose-headings:scroll-mt-28
+        prose-a:text-teal-600 hover:prose-a:text-teal-500 prose-a:no-underline hover:prose-a:underline
+        prose-img:rounded-xl prose-img:shadow-md prose-img:border prose-img:border-stone-200/50 dark:prose-img:border-stone-800/50
+        prose-blockquote:not-italic prose-blockquote:border-l-4 prose-blockquote:border-teal-500 
+        prose-blockquote:bg-stone-50 dark:prose-blockquote:bg-stone-900/50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r
+        ">
+        <Content />
+      </div>
+
+      <div className="xl:hidden mt-16 pt-8 border-t border-stone-200 dark:border-stone-800">
+        <a href="/en/archives" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-300 font-bold hover:bg-stone-200 dark:hover:bg-stone-800 transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          Back to Knowledge Base
+        </a>
+      </div>
+    </article>
+
+    <TableOfContents client:media="(min-width: 1280px)" headings={headings} lang="en" />
+
+  </div>
+
+  <script is:inline>
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      const bar = document.getElementById("progress-bar");
+      if (bar) bar.style.width = scrolled + "%";
+    });
+
+    function enhanceCodeBlocks() {
+      const codeBlocks = document.querySelectorAll('article.prose pre');
+      codeBlocks.forEach((pre) => {
+        if (pre.parentElement.classList.contains('code-content')) return;
+        
+        let lang = 'TEXT';
+        if (pre.dataset.language) {
+          lang = pre.dataset.language.toUpperCase();
+        } else {
+          const codeElement = pre.querySelector('code');
+          if (codeElement && codeElement.className) {
+            const langMatch = codeElement.className.match(/language-(\w+)/);
+            if (langMatch) lang = langMatch[1].toUpperCase();
+          }
+        }
+        const langMap = { 'JS': 'JAVASCRIPT', 'TS': 'TYPESCRIPT', 'PY': 'PYTHON', 'SH': 'BASH', 'YML': 'YAML' };
+        lang = langMap[lang] || lang;
+
+        const container = document.createElement('div');
+        container.className = 'code-container'; 
+        const header = document.createElement('div');
+        header.className = 'code-header';
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'code-content';
+        const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+        const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        header.innerHTML = `<span class="code-lang">${lang}</span><button class="copy-btn">${copyIcon}<span>Copy</span></button>`;
+        pre.parentNode.insertBefore(container, pre);
+        container.appendChild(header);
+        container.appendChild(contentWrapper);
+        contentWrapper.appendChild(pre);
+        const btn = header.querySelector('.copy-btn');
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(pre.innerText);
+            btn.innerHTML = `${checkIcon} <span class="text-teal-400">Copied</span>`;
+            setTimeout(() => { btn.innerHTML = `${copyIcon} <span>Copy</span>`; }, 2000);
+          } catch (e) {}
+        });
+      });
+    }
+    document.addEventListener('astro:page-load', enhanceCodeBlocks);
+    enhanceCodeBlocks();
+  </script>
+</Layout>

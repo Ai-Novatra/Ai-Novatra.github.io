@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SearchableArchive from '../components/SearchableArchive';
+import { getCollection } from 'astro:content';
+import { ui } from '../i18n/ui';
+
+const lang = 'zh';
+const t = (key) => ui[lang][key];
+
+const posts = (await getCollection('posts', ({ data }) => data.lang === 'zh'))
+  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+  .map(post => ({
+    title: post.data.title,
+    description: post.data.description,
+    date: post.data.date,
+    tags: post.data.tags,
+    slug: post.slug
+  }));
+---
+
+{/* 保持 isHome={true} 锁定 Layout 滚动 */}
+<Layout title={`${t('archives.title')} - Novatra AI`} lang={lang} isHome={true}>
+  {/* 直接渲染组件，不加任何 Padding 容器，组件内部已处理 pt-16 */}
+  <SearchableArchive client:load posts={posts} lang={lang} />
+</Layout>
