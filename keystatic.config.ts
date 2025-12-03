@@ -1,20 +1,15 @@
 import { config, fields, collection, singleton } from '@keystatic/core';
 
 export default config({
-  // === 安全配置 ===
-  // 生产环境使用 GitHub 模式 (只有你能编辑)
-  storage: process.env.NODE_ENV === 'production' 
-    ? {
-        kind: 'github',
-        repo: 'Ai-Novatra/Ai-Novatra.github.io', // 您的仓库地址
-      }
-    : {
-        kind: 'local', // 本地开发时使用本地模式
-      },
-      
-  // 启用 Keystatic Cloud 协助 OAuth 登录 (仅用于握手，不存数据)
+  // === Keystatic Cloud 配置 ===
+  // 生产环境和本地开发都使用 cloud 模式
+  storage: {
+    kind: 'cloud',
+  },
+  
+  // 项目路径：团队名/项目名 (从截图中获取)
   cloud: {
-    project: 'novatra-ai-blog', 
+    project: 'ai-novatra/ai-novatra-blogs',
   },
 
   // === 1. 首页控制 (Homepage) ===
@@ -53,7 +48,7 @@ export default config({
     posts: collection({
       label: '文章归档 (Posts)',
       slugField: 'title',
-      path: 'src/content/posts/*/', // 文章存放在 src/content/posts/下
+      path: 'src/content/posts/*/',
       format: { contentField: 'content' },
       schema: {
         title: fields.slug({ name: { label: '文章标题' } }),
