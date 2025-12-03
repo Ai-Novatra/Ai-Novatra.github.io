@@ -4,22 +4,23 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-// 1. 引入 Keystatic
 import keystatic from '@keystatic/astro';
 
 export default defineConfig({
-  site: 'https://Ai-Novatra.github.io', 
+  site: 'https://Ai-Novatra.github.io', // 修正：移除末尾空格
   base: '/',
   devToolbar: { enabled: false },
   
-  // 2. 必须保留 static 模式以适配 GitHub Pages
+  // 必须为 static 模式
   output: 'static',
+  
+  // 关键：强制预渲染所有路由
+  trailingSlash: 'always',
 
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),
     sitemap(),
-    // 3. 启用 Keystatic
     keystatic(),
   ],
 
@@ -40,7 +41,6 @@ export default defineConfig({
     routing: { prefixDefaultLocale: false }
   },
   
-  // 优化构建，防止 CMS 报错
   vite: {
     optimizeDeps: {
       exclude: ['@keystatic/core', '@keystatic/astro'],
