@@ -1,13 +1,18 @@
 import { config, fields, collection, singleton } from '@keystatic/core';
 
 export default config({
-  // === 核心安全配置 ===
-  // 使用 GitHub 模式：只有仓库拥有者（你）才能登录编辑
-  storage: {
-    kind: 'github',
-    repo: 'Ai-Novatra/Ai-Novatra.github.io', 
-  },
-  // 使用 Keystatic 免费云服务处理 OAuth 登录握手（不存储任何数据）
+  // === 安全配置 ===
+  // 生产环境使用 GitHub 模式 (只有你能编辑)
+  storage: process.env.NODE_ENV === 'production' 
+    ? {
+        kind: 'github',
+        repo: 'Ai-Novatra/Ai-Novatra.github.io', // 您的仓库地址
+      }
+    : {
+        kind: 'local', // 本地开发时使用本地模式
+      },
+      
+  // 启用 Keystatic Cloud 协助 OAuth 登录 (仅用于握手，不存数据)
   cloud: {
     project: 'novatra-ai-blog', 
   },
@@ -15,7 +20,7 @@ export default config({
   // === 1. 首页控制 (Homepage) ===
   singletons: {
     homepage: singleton({
-      label: '首页配置 (Homepage)',
+      label: '首页配置',
       path: 'src/content/pages/home',
       schema: {
         heroTitle: fields.text({ label: 'Hero 大标题' }),
@@ -29,43 +34,34 @@ export default config({
         ),
       },
     }),
-    
-    // === 2. 关于页控制 (About) ===
     about: singleton({
-      label: '关于页配置 (About)',
+      label: '关于页配置',
       path: 'src/content/pages/about',
       schema: {
         intro: fields.document({
-          label: '自我介绍 (支持富文本)',
+          label: '自我介绍',
           formatting: true,
           dividers: true,
           links: true,
         }),
-        philosophy: fields.array(
-          fields.text({ label: '理念段落' }),
-          { label: '人生理念' }
-        ),
       },
     }),
   },
 
-  // === 3. 归档/文档管理 (Archives) ===
-  // 这里实现了“像 Word 一样”的编辑体验
+  // === 2. 文章管理 (像 Word 一样编辑) ===
   collections: {
     posts: collection({
       label: '文章归档 (Posts)',
       slugField: 'title',
-      // *关键*：每篇文章一个文件夹，方便管理图片和素材
-      path: 'src/content/posts/*/', 
+      path: 'src/content/posts/*/', // 文章存放在 src/content/posts/下
       format: { contentField: 'content' },
       schema: {
         title: fields.slug({ name: { label: '文章标题' } }),
         date: fields.date({ label: '发布日期', defaultValue: { kind: 'today' } }),
         
-        // 自动归档分类
         tags: fields.array(
-          fields.text({ label: '分类/标签' }),
-          { label: '标签 (用于生成左侧文件夹结构)', itemLabel: props => props.value }
+          fields.text({ label: '标签' }),
+          { label: '标签 (分类)', itemLabel: props => props.value }
         ),
         
         lang: fields.select({
@@ -77,16 +73,16 @@ export default config({
           defaultValue: 'zh',
         }),
         
-        description: fields.text({ label: '文章摘要 (SEO)', multiline: true }),
+        description: fields.text({ label: '摘要', multiline: true }),
         
-        // 核心：所见即所得编辑器 (Word 体验)
+        // 所见即所得编辑器
         content: fields.document({
           label: '正文内容',
           formatting: true,
           dividers: true,
           links: true,
           images: {
-            directory: 'src/content/posts', // 图片直接存放在文章文件夹内
+            directory: 'src/content/posts', 
             publicPath: '../../content/posts/',
           },
           tables: true,

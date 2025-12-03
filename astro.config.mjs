@@ -12,14 +12,14 @@ export default defineConfig({
   base: '/',
   devToolbar: { enabled: false },
   
-  // 2. 必须设置为 static，因为我们要部署到 GitHub Pages
+  // 2. 必须保留 static 模式以适配 GitHub Pages
   output: 'static',
 
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),
     sitemap(),
-    // 3. 启用 CMS 路由
+    // 3. 启用 Keystatic
     keystatic(),
   ],
 
@@ -40,7 +40,7 @@ export default defineConfig({
     routing: { prefixDefaultLocale: false }
   },
   
-  // 避免构建时优化掉 CMS 的内部组件
+  // 优化构建，防止 CMS 报错
   vite: {
     optimizeDeps: {
       exclude: ['@keystatic/core', '@keystatic/astro'],
